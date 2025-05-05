@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { successResponse, errorResponse } from '../common/response/response.helper';
 import { UsersService } from '../users/users.service';
+import { RegisterUserDto } from '../users/requests/register-user-dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -13,9 +14,14 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() body: { email: string; password: string }, @Res() res: Response) {
+  async register(@Body() registerUserDto: RegisterUserDto, @Res() res: Response) {
     try {
-      const user = await this.authService.register(body.email, body.password);
+        if (await this.usersService.findByEmail(registerUserDto.email)) {
+            return res
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .json(errorResponse('User already exists'));
+        }
+      const user = await this.authService.register(registerUserDto.email, registerUserDto.password);
       return res
         .status(HttpStatus.CREATED)
         .json(successResponse('User registered successfully', user));
@@ -70,7 +76,7 @@ export class AuthController {
           .status(HttpStatus.NOT_FOUND)
           .json(errorResponse('User not found'));
       }
-      
+
       return res
         .status(HttpStatus.OK)
         .json(successResponse('User profile fetched successfully', user));
