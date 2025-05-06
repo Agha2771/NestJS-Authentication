@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { successResponse, errorResponse } from '../common/response/response.helper';            
+import { log } from 'console';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {

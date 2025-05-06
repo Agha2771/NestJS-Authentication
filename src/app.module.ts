@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JwtMiddleware } from './auth/jwt.middleware';
-
+import { BannerModule } from './banners/banner.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -13,6 +13,7 @@ import { JwtMiddleware } from './auth/jwt.middleware';
     })()),
     AuthModule,
     UsersModule,
+    BannerModule,
   ],
 })
 export class AppModule {
