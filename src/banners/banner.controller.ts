@@ -92,7 +92,7 @@ export class BannerController {
     }
   }
 
-  @Put(':id')
+  @Post('update/:id')
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -135,7 +135,7 @@ export class BannerController {
     }
   }
 
-  @Delete(':id')
+  @Post('delete/:id')
   async delete(@Param('id') id: string, @Res() res: Response) {
     try {
       await this.bannerService.delete(id);

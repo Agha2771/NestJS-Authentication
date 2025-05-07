@@ -32,5 +32,14 @@ import {
   
     @IsString()
     flash_colortimer_color: string;
+
+    @IsOptional()
+    desktop_banner: any;
+
+    @IsOptional()
+    mobile_banner: any;
+
+    @IsOptional()
+    flash_image: any;
   }
   
