@@ -1,2 +1,5 @@
-const { handler } = require('../dist/src/main');
-export default handler;
+import { VercelRequest, VercelResponse } from '@vercel/node';
+
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  res.status(200).json({ message: "API working" });
+}
