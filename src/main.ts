@@ -1,6 +1,12 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, HttpException, ValidationError, HttpStatus } from '@nestjs/common';
+import {
+  ValidationPipe,
+  HttpException,
+  ValidationError,
+  HttpStatus,
+} from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import * as express from 'express';
 import * as cors from 'cors';
@@ -24,7 +30,7 @@ async function bootstrap() {
     new ValidationPipe({
       exceptionFactory: (errors: ValidationError[]) => {
         const messages = errors.flatMap(err =>
-          Object.values(err.constraints || {})
+          Object.values(err.constraints || {}),
         );
 
         return new HttpException(
@@ -40,11 +46,11 @@ async function bootstrap() {
   );
 
   await app.init();
+
   cachedServer = serverless(expressApp);
   return cachedServer;
 }
 
-// Export the handler for Vercel
 export const handler = async (event, context) => {
   const server = await bootstrap();
   return server(event, context);
