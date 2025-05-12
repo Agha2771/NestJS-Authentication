@@ -1,19 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
-import {
-  ValidationPipe,
-  HttpException,
-  ValidationError,
-  HttpStatus,
-} from '@nestjs/common';
+import { ValidationPipe, HttpException, ValidationError, HttpStatus } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as express from 'express';
 import * as cors from 'cors';
+import * as dotenv from 'dotenv';
+import * as serverless from 'serverless-http';
 
 dotenv.config();
 
+let cachedServer: any;
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.use(cors());
+  if (cachedServer) return cachedServer;
+
+  const expressApp = express();
+  expressApp.use(cors());
+
+  const adapter = new ExpressAdapter(expressApp);
+  const app = await NestFactory.create(AppModule, adapter);
+
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors: ValidationError[]) => {
@@ -33,6 +39,13 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3001);
+  await app.init();
+  cachedServer = serverless(expressApp);
+  return cachedServer;
 }
-bootstrap();
+
+// Export the handler for Vercel
+export const handler = async (event, context) => {
+  const server = await bootstrap();
+  return server(event, context);
+};
