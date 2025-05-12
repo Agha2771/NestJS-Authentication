@@ -1,2 +1,2 @@
-import { handler } from '../dist/main'; // Adjust if dist folder is different
+import { handler } from '../dist/src/main'; // ✅ Correct path
 export default handler;
