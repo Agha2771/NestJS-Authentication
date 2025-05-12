@@ -1,2 +1,2 @@
-import { handler } from '../dist/src/main'; // ✅ Correct path
+const { handler } = require('../dist/src/main');
 export default handler;
