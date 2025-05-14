@@ -21,26 +21,45 @@ async function bootstrap() {
   if (cachedServer) return cachedServer;
 
   const expressApp = express();
-  expressApp.use(cors({
-    origin: [
-      'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
-      'http://localhost:3000' // Add localhost for development
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+
+  // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
+  const allowedOrigins = [
+    'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
+    'http://localhost:3000',
+  ];
+
+  // ✅ Use CORS with Express
+  expressApp.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+  );
 
   const adapter = new ExpressAdapter(expressApp);
   const app = await NestFactory.create(AppModule, adapter);
 
+  // ✅ Also enable CORS at Nest level
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+  });
+
+  // ✅ Global validation pipe with custom error formatting
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors: ValidationError[]) => {
-        const messages = errors.flatMap(err =>
+        const messages = errors.flatMap((err) =>
           Object.values(err.constraints || {}),
         );
-
         return new HttpException(
           {
             success: false,
@@ -55,6 +74,7 @@ async function bootstrap() {
 
   await app.init();
 
+  // ✅ Wrap expressApp for serverless deployment
   cachedServer = serverless(expressApp);
   return cachedServer;
 }
