@@ -1,52 +1,29 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import {
-  ValidationPipe,
-  HttpException,
-  ValidationError,
-  HttpStatus,
-} from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { AppModule } from './app.module';
+import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
-import * as dotenv from 'dotenv';
-import * as serverless from 'serverless-http';
+import { join } from 'path';
 
-dotenv.config();
+const server = express();
 
-let cachedServer: any;
+async function createNestServer(expressInstance) {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
 
-async function bootstrap() {
-  if (cachedServer) return cachedServer;
-
-  const expressApp = express();
-
-  const allowedOrigins = [
-    'https://next-js-crud-kcn5-48tfp4ib6-umar-devslooptechs-projects.vercel.app',
-    'http://localhost:3000',
-  ];
-
-  const adapter = new ExpressAdapter(expressApp);
-  const app = await NestFactory.create(AppModule, adapter);
-
-  // ✅ Enable CORS using Nest's built-in method only
   app.enableCors({
-    origin: function (origin, callback) {
-      console.log('Incoming request origin:', origin);
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  // ✅ Global validation pipe with custom error formatting
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
       exceptionFactory: (errors: ValidationError[]) => {
         const messages = errors.flatMap((err) =>
           Object.values(err.constraints || {}),
@@ -64,13 +41,8 @@ async function bootstrap() {
   );
 
   await app.init();
-
-  // ✅ Wrap for serverless deployment
-  cachedServer = serverless(expressApp);
-  return cachedServer;
 }
 
-export const handler = async (event, context) => {
-  const server = await bootstrap();
-  return server(event, context);
-};
+createNestServer(server);
+
+export default server; 
