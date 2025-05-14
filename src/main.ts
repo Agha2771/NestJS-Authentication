@@ -23,8 +23,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
-      'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app/api',
+      'http://next-js-crud-qr8y-git-main-umar-devslooptechs-projects.vercel.app/'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
