@@ -21,7 +21,15 @@ async function bootstrap() {
   if (cachedServer) return cachedServer;
 
   const expressApp = express();
-  expressApp.use(cors());
+  expressApp.use(cors({
+    origin: [
+      'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
+      'http://localhost:3000' // Add localhost for development
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 
   const adapter = new ExpressAdapter(expressApp);
   const app = await NestFactory.create(AppModule, adapter);
