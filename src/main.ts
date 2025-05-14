@@ -17,20 +17,19 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost:3000',
     'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
+    'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app/api',
   ];
 
   // ✅ Enable CORS at Nest level
   app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
+    origin: [
+      'http://localhost:3000',
+      'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
+      'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app/api',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   // ✅ Global validation pipe with custom error formatting
