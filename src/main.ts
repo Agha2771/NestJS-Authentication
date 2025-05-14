@@ -16,8 +16,7 @@ async function bootstrap() {
 
   const allowedOrigins = [
     'http://localhost:3000',
-    'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
-    'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app/api',
+    'http://next-js-crud-qr8y-git-main-umar-devslooptechs-projects.vercel.app/'
   ];
 
   // ✅ Enable CORS at Nest level
