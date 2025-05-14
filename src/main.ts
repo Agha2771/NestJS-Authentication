@@ -7,21 +7,49 @@ import {
   ValidationError,
   HttpStatus,
 } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as express from 'express';
+import * as cors from 'cors';
 import * as dotenv from 'dotenv';
+import * as serverless from 'serverless-http';
 
 dotenv.config();
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+let cachedServer: any;
 
-  // ✅ Enable CORS at Nest level
+async function bootstrap() {
+  if (cachedServer) return cachedServer;
+
+  const expressApp = express();
+
+  // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
+  const allowedOrigins = [
+    'https://next-js-crud-kcn5-48tfp4ib6-umar-devslooptechs-projects.vercel.app/',
+    'http://localhost:3000',
+  ];
+
+  // ✅ Use CORS with Express
+  expressApp.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+  );
+
+  const adapter = new ExpressAdapter(expressApp);
+  const app = await NestFactory.create(AppModule, adapter);
+
+  // ✅ Also enable CORS at Nest level
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://next-js-crud-kcn5-48tfp4ib6-umar-devslooptechs-projects.vercel.app/'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: allowedOrigins,
     credentials: true,
   });
 
@@ -44,9 +72,14 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Server running locally at http://localhost:${port}`);
+  await app.init();
+
+  // ✅ Wrap expressApp for serverless deployment
+  cachedServer = serverless(expressApp);
+  return cachedServer;
 }
 
-bootstrap();
+export const handler = async (event, context) => {
+  const server = await bootstrap();
+  return server(event, context);
+};
