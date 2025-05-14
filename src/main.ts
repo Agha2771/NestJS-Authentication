@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import * as express from 'express';
-import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as serverless from 'serverless-http';
 
@@ -22,35 +21,27 @@ async function bootstrap() {
 
   const expressApp = express();
 
-  // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
   const allowedOrigins = [
-    'https://next-js-crud-kcn5-48tfp4ib6-umar-devslooptechs-projects.vercel.app/',
+    'https://next-js-crud-kcn5-48tfp4ib6-umar-devslooptechs-projects.vercel.app',
     'http://localhost:3000',
   ];
-
-  // ✅ Use CORS with Express
-  expressApp.use(
-    cors({
-      origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-    }),
-  );
 
   const adapter = new ExpressAdapter(expressApp);
   const app = await NestFactory.create(AppModule, adapter);
 
-  // ✅ Also enable CORS at Nest level
+  // ✅ Enable CORS using Nest's built-in method only
   app.enableCors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      console.log('Incoming request origin:', origin);
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // ✅ Global validation pipe with custom error formatting
@@ -74,7 +65,7 @@ async function bootstrap() {
 
   await app.init();
 
-  // ✅ Wrap expressApp for serverless deployment
+  // ✅ Wrap for serverless deployment
   cachedServer = serverless(expressApp);
   return cachedServer;
 }
