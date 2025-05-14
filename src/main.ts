@@ -14,16 +14,11 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://next-js-crud-qr8y-git-main-umar-devslooptechs-projects.vercel.app/'
-  ];
-
   // ✅ Enable CORS at Nest level
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'http://next-js-crud-qr8y-git-main-umar-devslooptechs-projects.vercel.app/'
+      'https://next-js-crud-kcn5-48tfp4ib6-umar-devslooptechs-projects.vercel.app/'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
