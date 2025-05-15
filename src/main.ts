@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
 import express from 'express';
 import { join } from 'path';
+import { Request, Response } from 'express';
 
 const server = express();
 
@@ -39,6 +40,11 @@ async function createNestServer(expressInstance) {
       },
     }),
   );
+
+  const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.get('/', (req: Request, res: Response) => {
+        res.send('NestJS App is running!');
+        });
 
   await app.init();
   return app;
