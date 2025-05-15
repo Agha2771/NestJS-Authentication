@@ -10,6 +10,11 @@ async function createServer(): Promise<RequestHandler> {
   const expressApp = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
+  // Add a basic root route
+  expressApp.get('/', (_, res: express.Response) => {
+    res.json({ message: 'API is running' });
+  });
+
   app.enableCors({
     origin: ['https://next-js-crud-qr8y.vercel.app', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
