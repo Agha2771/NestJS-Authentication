@@ -26,7 +26,7 @@ import { Response } from 'express';
 import { successResponse, errorResponse } from '../common/response/response.helper';
 
 const storage = diskStorage({
-  destination: './uploads/banners',
+  destination: '/tmp/uploads/banners',
   filename: (req, file, callback) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = extname(file.originalname);
