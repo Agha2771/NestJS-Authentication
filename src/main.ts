@@ -12,6 +12,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 dotenv.config();
 
@@ -21,6 +23,9 @@ async function bootstrap() {
   if (cachedServer) return cachedServer;
 
   const expressApp = express();
+
+  // Set upload directory to system temp directory
+  process.env.UPLOAD_DIR = join(tmpdir(), 'uploads');
 
   // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
   const allowedOrigins = [
