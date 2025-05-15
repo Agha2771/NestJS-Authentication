@@ -1,58 +1,26 @@
+// src/main.ts
+
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import {
-  HttpException,
-  HttpStatus,
-  ValidationError,
-  ValidationPipe,
-} from '@nestjs/common';
-import * as express from 'express';
-import { join } from 'path';
+import { ValidationPipe } from '@nestjs/common';
 
-const server = express();
-
-server.use((req, res, next) => {
-  console.log('Request Origin:', req.headers.origin); // 👈 debug
-  next();
-});
-
-async function createNestServer(expressInstance) {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ['https://next-js-crud-gules.vercel.app', 'http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: ['http://localhost:3000'],
     credentials: true,
-    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
-
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-      exceptionFactory: (errors: ValidationError[]) => {
-        const messages = errors.flatMap((err) =>
-          Object.values(err.constraints || {}),
-        );
-        return new HttpException(
-          {
-            success: false,
-            message: 'Validation failed',
-            errors: messages,
-          },
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      },
     }),
   );
 
-  await app.init();
+  await app.listen(3001);
+  console.log(`🚀 Server is running on http://localhost:3001`);
 }
-
-createNestServer(server);
-
-export default server;
+bootstrap();
