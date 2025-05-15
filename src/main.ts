@@ -29,7 +29,7 @@ async function bootstrap() {
 
   // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
   const allowedOrigins = [
-    'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
+    'https://next-js-crud-gules.vercel.app/',
     'http://localhost:3000',
   ];
 
