@@ -11,7 +11,7 @@ async function createNestServer(expressInstance) {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
 
   app.enableCors({
-    origin: 'https://next-js-crud-qr8y.vercel.app/',
+    origin: ['https://next-js-crud-gules.vercel.app', 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
@@ -41,8 +41,8 @@ async function createNestServer(expressInstance) {
   );
 
   await app.init();
+  return app;
 }
 
-createNestServer(server);
-
+const app = createNestServer(server);
 export default server; 
