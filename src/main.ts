@@ -1,30 +1,61 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
+import {
+  ValidationPipe,
+  HttpException,
+  ValidationError,
+  HttpStatus,
+} from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
-import { join } from 'path';
-import { Request, Response } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import serverless from 'serverless-http';
 
-const server = express();
+dotenv.config();
 
-async function createNestServer(expressInstance) {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
+let cachedServer: any;
 
+async function bootstrap() {
+  if (cachedServer) return cachedServer;
+
+  const expressApp = express();
+
+  // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
+  const allowedOrigins = [
+    'https://nest-js-authentication-git-b-921506-umar-devslooptechs-projects.vercel.app',
+    'http://localhost:3000',
+  ];
+
+  // ✅ Use CORS with Express
+  expressApp.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+  );
+
+  const adapter = new ExpressAdapter(expressApp);
+  const app = await NestFactory.create(AppModule, adapter);
+
+  // ✅ Also enable CORS at Nest level
   app.enableCors({
-    origin: ['https://next-js-crud-qr8y.vercel.app', 'http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: allowedOrigins,
     credentials: true,
-    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
-
+  // ✅ Global validation pipe with custom error formatting
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
       exceptionFactory: (errors: ValidationError[]) => {
         const messages = errors.flatMap((err) =>
           Object.values(err.constraints || {}),
@@ -41,14 +72,14 @@ async function createNestServer(expressInstance) {
     }),
   );
 
-  const expressApp = app.getHttpAdapter().getInstance();
-    expressApp.get('/', (req: Request, res: Response) => {
-        res.send('NestJS App is running!');
-        });
-
   await app.init();
-  return app;
+
+  // ✅ Wrap expressApp for serverless deployment
+  cachedServer = serverless(expressApp);
+  return cachedServer;
 }
 
-const app = createNestServer(server);
-export default server; 
+export const handler = async (event, context) => {
+  const server = await bootstrap();
+  return server(event, context);
+};
