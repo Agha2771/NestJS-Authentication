@@ -50,7 +50,20 @@ async function bootstrap() {
 }
 
 // Initialize the app
-const app = bootstrap();
+let cachedApp: any;
+
+async function getApp() {
+  if (!cachedApp) {
+    cachedApp = await bootstrap();
+  }
+  return cachedApp;
+}
 
 // Export the express app
 export default expressApp;
+
+// Add handler for serverless environment
+export const handler = async (req: any, res: any) => {
+  const app = await getApp();
+  return app.getHttpAdapter().getInstance().handle(req, res);
+};
