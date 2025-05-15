@@ -3,7 +3,7 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
 import express from 'express';
-import { join } from 'path';
+// import { join } from 'path';
 
 const server = express();
 
@@ -17,7 +17,7 @@ async function createNestServer(expressInstance) {
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+//   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   app.useGlobalPipes(
     new ValidationPipe({
