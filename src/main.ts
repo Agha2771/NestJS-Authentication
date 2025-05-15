@@ -1,11 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common';
 import * as express from 'express';
 import { join } from 'path';
 
 const server = express();
+
+server.use((req, res, next) => {
+  console.log('Request Origin:', req.headers.origin); // 👈 debug
+  next();
+});
 
 async function createNestServer(expressInstance) {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
@@ -41,8 +51,8 @@ async function createNestServer(expressInstance) {
   );
 
   await app.init();
-  return app;
 }
 
-const app = createNestServer(server);
-export default server; 
+createNestServer(server);
+
+export default server;
