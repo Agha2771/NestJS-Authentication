@@ -25,7 +25,7 @@ async function bootstrap() {
   const expressApp = express();
 
   // Set upload directory to system temp directory
-  process.env.UPLOAD_DIR = join(tmpdir(), 'uploads');
+//   process.env.UPLOAD_DIR = join(tmpdir(), 'uploads');
 
   // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
   const allowedOrigins = [
