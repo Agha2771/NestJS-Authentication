@@ -20,7 +20,7 @@ import { extname } from 'path';
 import { BannerService } from './banner.service';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
-import { CurrentUser } from 'src/users/decorator/current-user-decorator';
+import { CurrentUser } from '../users/decorator/current-user-decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Response } from 'express';
 import { successResponse, errorResponse } from '../common/response/response.helper';
