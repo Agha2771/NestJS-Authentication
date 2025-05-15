@@ -2,13 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
-import express from 'express';
-import { join } from 'path';
+import express, { RequestHandler } from 'express';
 
-const server = express();
+let cachedServer: RequestHandler;
 
-async function createNestServer(expressInstance) {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
+async function createServer(): Promise<RequestHandler> {
+  const expressApp = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   app.enableCors({
     origin: ['https://next-js-crud-qr8y.vercel.app', 'http://localhost:3000'],
@@ -16,7 +16,6 @@ async function createNestServer(expressInstance) {
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
-
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -40,8 +39,13 @@ async function createNestServer(expressInstance) {
   );
 
   await app.init();
-  return app;
+  return expressApp;
 }
 
-const app = createNestServer(server);
-export default server; 
+export default async function handler(req, res, context) {
+  if (!cachedServer) {
+    const server = await createServer();
+    cachedServer = server;
+  }
+  return cachedServer(req, res, context);
+}
