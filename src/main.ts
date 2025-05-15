@@ -10,12 +10,7 @@ const server = express();
 async function createNestServer(expressInstance) {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
 
-  app.enableCors({
-    origin: ['https://next-js-crud-qr8y.vercel.app', 'http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-    allowedHeaders: 'Content-Type, Accept, Authorization',
-  });
+  app.enableCors();
 
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
