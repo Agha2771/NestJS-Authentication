@@ -18,8 +18,12 @@ dotenv.config();
 let cachedServer: any;
 
 async function bootstrap() {
-  if (cachedServer) return cachedServer;
+  if (cachedServer) {
+    console.log('Using cached server');
+    return cachedServer;
+  }
 
+  console.log('Initializing new server');
   const expressApp = express();
 
   // ✅ Set allowed origins dynamically via .env or fallback to hardcoded
@@ -73,13 +77,15 @@ async function bootstrap() {
   );
 
   await app.init();
+  console.log('Server initialized successfully');
 
-  // ✅ Wrap expressApp for serverless deployment
   cachedServer = serverless(expressApp);
   return cachedServer;
 }
 
 export default async (event, context) => {
+  console.log('Lambda handler invoked');
   const server = await bootstrap();
+  console.log('Server bootstrapped, handling request');
   return server(event, context);
 };
