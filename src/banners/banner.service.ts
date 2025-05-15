@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Banner, BannerDocument } from './banner.schema';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 
 @Injectable()
 export class BannerService {
