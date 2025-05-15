@@ -16,7 +16,7 @@ async function createServer(): Promise<RequestHandler> {
   });
 
   app.enableCors({
-    origin: ['https://next-js-crud-qr8y.vercel.app', 'http://localhost:3000'],
+    origin: ['https://next-js-crud-gules.vercel.app','https://next-js-crud-gules.vercel.app/' , 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
